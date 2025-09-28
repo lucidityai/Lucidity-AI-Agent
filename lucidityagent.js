@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // LucidityAI Agent, (C) 2025 LucidityAI
 // https://lucidityai.app
 // We Major

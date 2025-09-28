@@ -4,6 +4,9 @@
   "description": "A coding agent intended for LucidityAI models.",
   "type": "module",
   "main": "lucidityagent.js",
+  "bin": {
+    "lcagent": "lucidityagent.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

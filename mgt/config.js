@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const configPath = path.resolve(import.meta.dirname, '..', 'lc_config', 'config.json');
+const configPath = path.join(process.cwd(), '.lc_config', 'config.json');
 
 // ensure the config directory exists
 const configDir = path.dirname(configPath);
