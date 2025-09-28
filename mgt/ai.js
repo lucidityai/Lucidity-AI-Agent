@@ -54,7 +54,6 @@ async function call(messages) {
     return [response, messages];
 
     } catch (error) {
-        throw new Error(error);
         // chances are, its a context window issue, compress the messages and retry via a recursive call
         let compressed = await compress(messages);
         let newMessages = [
