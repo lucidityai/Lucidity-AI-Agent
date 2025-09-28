@@ -9,7 +9,7 @@ import termkit from "terminal-kit";
 const term = termkit.terminal;
 import { api_key, api_base, model, actions } from "./mgt/config.js";
 import { call } from "./mgt/ai.js";
-import { print } from "./mgt/ui.js";
+import { options, print } from "./mgt/ui.js";
 import { getSystemPrompt } from "./mgt/system.js";
 import { parseToolCall, removeToolCall } from "./mgt/parser.js";
 import {
@@ -45,6 +45,8 @@ async function doTask(input) {
     messages = response[1];
     response = response[0];
 
+    print(response, "grey");
+
     // parse response for tool calls
     let tool_calls = parseToolCall(response); // may be more than one, putting this as a reminder
 
@@ -61,12 +63,33 @@ async function doTask(input) {
       let tool_args = tool_call["arguments"];
       let tool = tool_list.find((tool) => tool.name == tool_name);
       let total_tool_responses = "";
-                  // if tool is "finish" set inThink to false
+      let option = [];
+      let resp = "";
+      // if tool is "finish" set inThink to false
+
       if (tool_name == "finish") {
         inThink = false;
         print(tool_args["message"], "green");
-        return 
-     }
+        return;
+      }
+
+      if (tool_name == "question") {
+        print(tool_args["q"], "blue");
+        option = [
+          tool_args["a1"],
+          tool_args["a2"],
+          tool_args["a3"],
+          "Enter custom response",
+        ].filter((o) => o != null && o !== undefined);
+
+        resp = await options(...option);
+        if (resp === "Enter custom response") {
+          print("Enter your custom response:", "yellow");
+          resp = await term.inputField().promise;
+          resp = resp.trim();
+        }
+        total_tool_responses += "User selected option: " + resp;
+      }
 
       if (tool) {
         try {
@@ -77,7 +100,6 @@ async function doTask(input) {
             !Array.isArray(tool_args)
           ) {
             const argsArray = Object.values(tool_args);
-
 
             // actions can have two states: auto-accept, ask
             if (actions == "auto-accept") {
@@ -138,6 +160,6 @@ figlet("LucidityAI Agent", { font: "nancyj" }, function (err, data) {
       print("Overdrive Activated!\n", "red");
     }
 
-    print(await doTask(input), "white"); // this is where the magic happens
+    await doTask(input), "white"; // this is where the magic happens
   }
 });

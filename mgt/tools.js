@@ -3,8 +3,9 @@ import path from 'path';
 import { diffChars, createPatch } from 'diff';
 import { execSync } from 'child_process';
 
-function createFile(file_path) {
+function createFile(file_path, content) {
     fs.writeFileSync(file_path, '');
+    fs.appendFileSync(file_path, content);
     return fs.readFileSync(file_path, 'utf-8');
 }
 

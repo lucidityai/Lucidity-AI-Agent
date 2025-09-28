@@ -48,15 +48,8 @@ async function call(messages) {
         max_tokens:15000,
         stream:true,
     })
-    for await (const chunk of generation) {
-        response += chunk.choices[0].delta.content
-        // check if we are in a codeblock or not by checking if length is even or odd
-        if (response.split("```").length % 2 == 0) {
-            process.stdout.write(chunk.choices[0].delta.content); 
-        }
-    }
-    console.log("\n");
 
+    for await (const chunk of generation) {response += chunk.choices[0].delta.content}
     messages.push({ role: "assistant", content: response });
     return [response, messages];
 
