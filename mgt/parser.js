@@ -12,12 +12,21 @@ function parseToolCall(message) {
             let innerMatch = match[i].match(/<tool_call>\s*({.*?})\s*<\/tool_call>/);
             if (innerMatch) {
                 let jsonString = innerMatch[1];
-                // Convert Python-style single quotes to JSON double quotes
                 jsonString = jsonString.replace(/'/g, '"');
                 try {
-                    results.push(JSON.parse(jsonString));
+                    const parsed = JSON.parse(jsonString);
+                    // Validate required fields
+                    if (!parsed.name || typeof parsed.name !== 'string') {
+                        console.error("Tool call missing or invalid 'name' field");
+                        continue;
+                    }
+                    if (!parsed.arguments || typeof parsed.arguments !== 'object') {
+                        console.error("Tool call missing or invalid 'arguments' field");
+                        continue;
+                    }
+                    results.push(parsed);
                 } catch (error) {
-                    console.error("Failed to parse tool call JSON:", error);
+                    console.error("Failed to parse tool call JSON:", error.message);
                     console.error("Input was:", jsonString);
                 }
             }
@@ -29,7 +38,7 @@ function parseToolCall(message) {
 
 function removeToolCall(message) {
     // the point of this function is so we don't show the tool call in the UI
-    let regex = /<tool_call>\s*({.*?})\s*<\/tool_call>/g;
+    let regex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
     return message.replace(regex, "");
 }
 

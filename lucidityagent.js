@@ -1,7 +1,6 @@
-#!/usr/bin/env node
 // LucidityAI Agent, (C) 2025 LucidityAI
 // https://lucidityai.app
-// We Major
+// BIG POE
 
 import fs from "fs";
 import path from "path";
@@ -17,36 +16,40 @@ import {
   createFile,
   createDir,
   deleteFile,
-  applyDiff,
+  findReplace,
   readFile,
   bash,
   tool_list,
 } from "./mgt/tools.js";
+import { overdrive } from "./mgt/overdrive.js";
 // check for config (/lc_config/config.json) file
 
 let messages = [{ role: "system", content: getSystemPrompt() }]; // new conversation
+let maxIterations = 50; 
+let currentIteration = 0;
+let maxMessagesInMemory = 100; 
 
 async function doTask(input) {
-  // push to messages
+  // Validate input
+  if (typeof input !== 'string' || input.trim().length === 0) {
+    print("Error: Input must be a non-empty string", "red");
+    return;
+  }
 
-  messages.push({ role: "user", content: input });
+  currentIteration = 0;
+
+  // push to messages
+  messages.push({ role: "user", content: input.trim() });
   let inThink = true;
 
-  while (inThink) {
+  while (inThink && currentIteration < maxIterations) {
+    currentIteration++;
     // make call
     let response = await call(messages);
 
-    if (response[1].length < messages.length) {
-      print(
-        "Warning: Context window exceeded. Automatic compression done.",
-        "yellow"
-      );
-    }
 
     messages = response[1];
     response = response[0];
-
-    print(response, "grey");
 
     // parse response for tool calls
     let tool_calls = parseToolCall(response); // may be more than one, putting this as a reminder
@@ -104,13 +107,27 @@ async function doTask(input) {
 
             // actions can have two states: auto-accept, ask
             if (actions == "auto-accept") {
-              total_tool_responses += tool.func(...argsArray, messages);
+              try {
+                const result = tool.func(...argsArray, messages);
+                total_tool_responses += result || "Tool executed successfully";
+              } catch (toolError) {
+                print("Tool execution failed: " + toolError.message, "red");
+                total_tool_responses += "Error: " + toolError.message;
+              }
             } else {
               print("Do you want to run " + tool_name + "? (y/n)", "yellow");
               let input = await term.inputField().promise;
               input = input.trim();
               if (input == "y") {
-                total_tool_responses += tool.func(...argsArray, messages);
+                try {
+                  const result = tool.func(...argsArray, messages);
+                  total_tool_responses += result || "Tool executed successfully";
+                } catch (toolError) {
+                  print("Tool execution failed: " + toolError.message, "red");
+                  total_tool_responses += "Error: " + toolError.message;
+                }
+              } else {
+                total_tool_responses += "Tool execution cancelled by user";
               }
             }
           } else {
@@ -122,9 +139,9 @@ async function doTask(input) {
             total_tool_responses += "Error: Invalid tool arguments format";
           }
         } catch (e) {
-          print("Tool Call Error: " + e, "red");
-          // recursion
-          await doTask("Tool Call Error: " + e);
+          print("Critical Tool Call Error: " + e.message, "red");
+          total_tool_responses += "Critical Error: " + e.message;
+          // Don't recurse on critical errors to avoid infinite loops
         }
       }
 
@@ -133,12 +150,23 @@ async function doTask(input) {
       messages.push({ role: "user", content: total_tool_responses });
     }
   }
+
+  if (currentIteration >= maxIterations) {
+    print(`Warning: Maximum iterations (${maxIterations}) reached. Stopping to prevent infinite loop.`, "yellow");
+  }
+
+  // Prevent memory bloat by trimming old messages if conversation gets too long
+  if (messages.length > maxMessagesInMemory) {
+    const systemMessage = messages[0]; // Keep system message
+    const recentMessages = messages.slice(-maxMessagesInMemory + 1); // Keep recent messages
+    messages = [systemMessage, ...recentMessages];
+    print(`Memory management: Trimmed conversation to ${maxMessagesInMemory} messages`, "gray");
+  }
 }
 
-figlet("LucidityAI Agent", { font: "nancyj" }, function (err, data) {
+figlet("LucidityAI Agent", { font: "slant" }, function (err, data) {
   if (err) {
-    console.log("Something went wrong...");
-    console.dir(err);
+    console.error("Figlet rendering failed:", err.message || err);
     return;
   }
   console.log(data);
@@ -147,20 +175,28 @@ figlet("LucidityAI Agent", { font: "nancyj" }, function (err, data) {
     term.magenta("> ");
     let input = await term.inputField().promise;
     input = input.trim();
-    console.log("\n"); // new line cause terminal-kit is weird and doesn't do it itself ( actual useless module )
+    console.log("\n"); // Add newline for proper formatting
+
+    // Input validation
+    if (typeof input !== 'string') {
+      print("Error: Invalid input type", "red");
+      continue;
+    }
 
     if (input == "exit") {
       process.exit();
     }
 
-    // check for keywords
-    let overdrive = false; // this will be pararell processing, Gemini 2.5 Pro DeepThink style
-
-    if (input.includes("overdrive")) {
-      overdrive = true;
-      print("Overdrive Activated!\n", "red");
+    if (input.trim().length === 0) {
+      print("Please enter a command or 'exit' to quit.", "yellow");
+      continue;
     }
 
-    await doTask(input), "white"; // this is where the magic happens
+    if (input.includes("overdrive")) {
+      overdrive(input.replace("overdrive", "").trim());
+    }
+    else{
+      await doTask(input), "white"; // this is where the magic happens
+    }
   }
 });
