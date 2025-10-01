@@ -163,7 +163,25 @@ async function doTask(input) {
     print(`Memory management: Trimmed conversation to ${maxMessagesInMemory} messages`, "gray");
   }
 }
-
+print(`                  @@  @              
+                 @    @              
+                @@   @@    @         
+                @@        @ @   @    
+            @@           @   @@  @   
+           @@@          @        @   
+   @@@@@@  @@@ @@@@@@@ @@        @   
+   @@@@@@@@@@@@@@@@@@@@@@ @    @@@   
+@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+@@@@@@@@@@@@@@ @@@@@@@ @@@@@@@@@@@@@@
+   @@@@@@@@      @@@      @@@@@@@@@  
+ @@@@@@@@@@   @       @   @@@@@@@@@@ 
+ @@@@@@@@@   @ @     @ @   @@@@@@@@@ 
+   @@@@@@@@               @@@@@@@@   
+    @@@@ @@    @     @   @@@ @@@@    
+     @@@   @    @@@@@    @   @@@     
+      @@    @@@  @@@  @@@     @   `, "green");
 figlet("LucidityAI Agent", { font: "slant" }, function (err, data) {
   if (err) {
     console.error("Figlet rendering failed:", err.message || err);
@@ -171,6 +189,7 @@ figlet("LucidityAI Agent", { font: "slant" }, function (err, data) {
   }
   console.log(data);
 }).then(async () => {
+  
   while (1) {
     term.magenta("> ");
     let input = await term.inputField().promise;
@@ -193,7 +212,7 @@ figlet("LucidityAI Agent", { font: "slant" }, function (err, data) {
     }
 
     if (input.includes("overdrive")) {
-      overdrive(input.replace("overdrive", "").trim());
+      overdrive(messages);
     }
     else{
       await doTask(input), "white"; // this is where the magic happens
