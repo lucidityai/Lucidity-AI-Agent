@@ -155,14 +155,14 @@ async function doTask(input) {
     print(`Warning: Maximum iterations (${maxIterations}) reached. Stopping to prevent infinite loop.`, "yellow");
   }
 
-  // Prevent memory bloat by trimming old messages if conversation gets too long
   if (messages.length > maxMessagesInMemory) {
-    const systemMessage = messages[0]; // Keep system message
-    const recentMessages = messages.slice(-maxMessagesInMemory + 1); // Keep recent messages
+    const systemMessage = messages[0]; 
+    const recentMessages = messages.slice(-maxMessagesInMemory + 1);
     messages = [systemMessage, ...recentMessages];
     print(`Memory management: Trimmed conversation to ${maxMessagesInMemory} messages`, "gray");
   }
 }
+// credit to idk who, refer to the credits for Machine Love, cause its one of em
 print(`                  @@  @              
                  @    @              
                 @@   @@    @         
@@ -190,13 +190,20 @@ figlet("LucidityAI Agent", { font: "slant" }, function (err, data) {
   console.log(data);
 }).then(async () => {
   
+  // Set up Ctrl+C detection globally
+  term.on('key', function(name, matches, data) {
+    if (name === 'CTRL_C') {
+      console.log("\nGoodbye...");
+      process.exit();
+    }
+  });
+
   while (1) {
-    term.magenta("> ");
+    term.magenta("You > ");
     let input = await term.inputField().promise;
     input = input.trim();
-    console.log("\n"); // Add newline for proper formatting
+    console.log("\n");
 
-    // Input validation
     if (typeof input !== 'string') {
       print("Error: Invalid input type", "red");
       continue;
@@ -215,7 +222,8 @@ figlet("LucidityAI Agent", { font: "slant" }, function (err, data) {
       overdrive(messages);
     }
     else{
-      await doTask(input), "white"; // this is where the magic happens
+      
+      await doTask(input+"\n"+"\n"+"/no_think"), "white"; // this is where the magic happens
     }
   }
 });
