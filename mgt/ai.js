@@ -1,5 +1,6 @@
 import { OpenAI } from "openai";
 import { api_key, api_base, model } from "./config.js";
+import { print } from "./ui.js";
 
 const client = new OpenAI({
     baseURL: api_base,
@@ -64,6 +65,16 @@ async function compress(messages) {
 async function call(messages) {
     try {
     let response = ""
+
+    // add indicator that we are "thinking" ( cough cough loaiding but using marketing terms LOL )
+    let terms = [
+        "Majoring",
+        "Dunking",
+        "Feeling",
+        "Locking in",
+        "Wondering"
+    ]
+    print(terms[Math.floor(Math.random() * terms.length)] + "...", "yellow");
 
     let validatedMessages = validateMessages(messages);
     let generation = await client.chat.completions.create({

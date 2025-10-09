@@ -42,10 +42,30 @@ Example 2:
 {'arguments': {'file_path': 'test.txt', 'start': 0, 'end': 10}, 'name': 'read'}
 </tool_call>
 
+
+In your tool calls, ensure you add escape characters to anything that may need it to avoid causing JSON errors.
+
+For example, this is a bugged tool call:
+<tool_call>
+{'arguments': {'file_path': 'file.txt', 'find_text': "hello", 'replace_text': ""world""}, 'name': 'findReplace'}
+</tool_call>
+
+a fixed version of this tool call is:
+
+<tool_call>
+{'arguments': {'file_path': 'file.txt', 'find_text': "hello", 'replace_text': "\"world\""}, 'name': 'findReplace'}
+</tool_call>
+
+Notice the quotes in the arguments are now escaped, preventing JSON errors.
+
+Utilize new lines (\\n) to in code blocks so that files are properly formatted instead of being one line.
+
 Additional infomation:
 
 When utilizing any tool, make note that the commands are made from ${process.cwd()}, so prefix all file paths in subdirectories with the subdirectory name otherwise tool calling will fail.
 Even when a user-query is not exact, make inferences to try making the right calls.
+
+Always utilize the finish command once you are done solving a problem.
 
 The current working directory is: ${process.cwd()}
 The current operating system is: ${process.platform}

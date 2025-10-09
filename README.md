@@ -8,14 +8,15 @@ This project is a CLI tool that leverages LucidityAI models to assist with codin
 
 ## Configuration
 
-On first run, a configuration file `lc_config/config.json` will be created in the project root with default settings:
+On first run, a configuration file `.lc_config/config.json` will be created in the project root with default settings:
 
 ```json
 {
-  "api_key": "",
-  "model": "astral-coder",
-  "api_base": "https://api.lucidityai.app/v1",
-  "actions": "auto-accept"
+  "api_key": "YOUR_API_KEY",
+  "model": "MODEL_NAME",
+  "api_base": "YOUR_API_BASE_URL",
+  "actions": "auto-accept",
+  "checkpoints": ".lc_checkpoints"
 }
 ```
 
@@ -23,6 +24,7 @@ On first run, a configuration file `lc_config/config.json` will be created in th
 - `model`: The AI model to use
 - `api_base`: Base URL for the API
 - `actions`: Set to "auto-accept" for automatic tool execution or "ask" to ask the user before executing tools
+- `checkpoints`: Directory for storing checkpoints
 
 ## Features
 
@@ -37,5 +39,6 @@ On first run, a configuration file `lc_config/config.json` will be created in th
 - **Configurable Settings**: Customize API endpoints, models, and execution behavior
 - **Streaming Responses**: Real-time streaming of AI responses for better user experience
 - **Error Handling**: Robust error handling with retry mechanisms
+- **Checkpoints**: Rollback support for codebases
 
 > Bulit with ❤️ by [LucidityAI](https://lucidityai.app)

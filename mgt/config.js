@@ -8,7 +8,7 @@ if (!fs.existsSync(configDir)) {
     fs.mkdirSync(configDir, { recursive: true });
 }
 
-let api_key, api_base, model, actions;
+let api_key, api_base, model, actions, checkpoints;
 
 function validateConfig(config) {
     const errors = [];
@@ -36,6 +36,10 @@ function validateConfig(config) {
         }
     }
 
+    if (!config.checkpoints || typeof config.checkpoints !== 'string') {
+        errors.push('Checkpoints directory is required and must be a non-empty string');
+    }
+
     const validActions = ['auto-accept', 'ask'];
     if (!config.actions || !validActions.includes(config.actions)) {
         errors.push(`Actions must be one of: ${validActions.join(', ')}`);
@@ -51,9 +55,10 @@ function loadConfig() {
         if (!fs.existsSync(configPath)) {
             const defaultConfig = {
                 "api_key": "",
-                "model": "astral-coder",
-                "api_base": "https://api.lucidityai.app/v1",
+                "model": "",
+                "api_base": "",
                 "actions": "auto-accept",
+                "checkpoints": ".lc_checkpoints"
             };
 
             fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
@@ -84,5 +89,6 @@ api_key = config.api_key;
 api_base = config.api_base;
 model = config.model;
 actions = config.actions;
+checkpoints = config.checkpoints;
 
-export { api_key, api_base, model, actions };
+export { api_key, api_base, model, actions, checkpoints };

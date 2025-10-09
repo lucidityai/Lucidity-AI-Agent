@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { setCheckpoint } from './checkpoints.js';
+import { print } from './ui.js';
 
 function createFile(file_path, content) {
     try {
@@ -63,6 +65,11 @@ function listDirectory(directory) {
 }
 
 function deleteFile(file_path) {
+    // checkpoint
+
+    let id = setCheckpoint(file_path);
+    print(`Created checkpoint ${id}. Load it with "/load ${id}"`);
+    
     try {
         
         const normalizedPath = path.normalize(file_path);
@@ -88,6 +95,12 @@ function deleteFile(file_path) {
 }
 
 function findReplace(file_path, find_text, replace_text) {
+
+    // checkpoint
+
+    let id = setCheckpoint(file_path);
+    print(`Created checkpoint ${id}. Load it with "/load ${id}"`);
+
     try {
         
         const normalizedPath = path.normalize(file_path);

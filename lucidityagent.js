@@ -12,6 +12,7 @@ import { call } from "./mgt/ai.js";
 import { options, print } from "./mgt/ui.js";
 import { getSystemPrompt } from "./mgt/system.js";
 import { parseToolCall, removeToolCall } from "./mgt/parser.js";
+import { loadCheckpoint } from "./mgt/checkpoints.js";
 import {
   createFile,
   createDir,
@@ -218,12 +219,36 @@ figlet("LucidityAI Agent", { font: "slant" }, function (err, data) {
       continue;
     }
 
+    // handle commands
+
+    if (input.startsWith("/load ")){
+      const args = input.split("/load ")[1].trim().split(" ");
+      if (args.length === 2) {
+        const [filePath, checkpointId] = args;
+        loadCheckpoint(filePath, parseInt(checkpointId, 10));
+      } else if (args.length === 1) {
+        // If only checkpoint ID provided, try to find and load it
+        const checkpointId = parseInt(args[0], 10);
+        if (isNaN(checkpointId)) {
+          print("Usage: /load <filepath> <checkpointId> OR /load <checkpointId>", "red");
+        } else {
+          loadCheckpoint(null, checkpointId);
+        }
+      } else {
+        print("Usage: /load <filepath> <checkpointId> OR /load <checkpointId>", "red");
+      }
+    } else if (input.startsWith("/")) {
+      print("Unknown command: " + input, "red");
+    }
+    else{
+
     if (input.includes("overdrive")) {
       overdrive(messages);
     }
     else{
       
       await doTask(input+"\n"+"\n"+"/no_think"), "white"; // this is where the magic happens
+    }
     }
   }
 });
