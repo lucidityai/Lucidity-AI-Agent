@@ -1,6 +1,6 @@
 {
   "name": "@lucidityai/horizon",
-  "version": "2",
+  "version": "2.0.0",
   "description": "A coding agent intended for LucidityAI models.",
   "type": "module",
   "main": "lucidityagent.js",
