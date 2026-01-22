@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import ora from 'ora';
 import { chalk, AGENT_PROMPT, OVERDRIVE_PROMPT, MODEL, OS, chalkRainbow } from './config.js';
 import { runTool } from './helpers/tools.js';
@@ -111,7 +113,13 @@ Using ${chalk.bold.green(MODEL)} - on ${chalk.bold.cyan(OS)} - at ${chalk.bold.c
 
         const assistantMessage = { role: "assistant" };
 
-        assistantMessage.content = textContent || "";
+        if (textContent) {
+          assistantMessage.content = textContent;
+        } else if (toolCalls.length > 0) {
+          assistantMessage.content = null;
+        } else {
+          assistantMessage.content = "";
+        }
 
         if (toolCalls.length > 0) {
           assistantMessage.tool_calls = toolCalls;
@@ -215,7 +223,13 @@ async function overdriveLoop(input) {
 
         const assistantMessage = { role: "assistant" };
 
-        assistantMessage.content = textContent || "";
+        if (textContent) {
+          assistantMessage.content = textContent;
+        } else if (toolCalls.length > 0) {
+          assistantMessage.content = null;
+        } else {
+          assistantMessage.content = "";
+        }
 
         if (toolCalls.length > 0) {
           assistantMessage.tool_calls = toolCalls;
