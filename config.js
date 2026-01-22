@@ -6,8 +6,8 @@ import chalkRainbow from 'chalk-rainbow';
  */
 
 export const API_KEY = "dummy";
-export const API_URL = "http://localhost:2011/v1/chat/completions";
-export const MODEL = "zai-org/glm-4.7-flash";
+export const API_URL = "http://localhost:1234/v1/chat/completions";
+export const MODEL = "zai-org/glm-4.7-flash"; // example
 export const OS = process.platform;
 
 /**
